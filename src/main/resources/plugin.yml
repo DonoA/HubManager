@@ -1,0 +1,4 @@
+name: ${project.artifactId}
+main: net.pocketpixels.hubmanager.HubManager
+version: ${project.version}
+author: Dallen
