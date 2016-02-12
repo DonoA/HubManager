@@ -18,11 +18,14 @@
  */
 package net.pocketpixels.hubmanager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
  *
@@ -36,5 +39,17 @@ public class CompassHandler implements Listener{
                 (e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_AIR))){
             HubManager.getMenus().get(e.getItem().getType().toString()).sendMenu(e.getPlayer());
         }
+    }
+    
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e){
+        Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
+            @Override
+            public void run(){
+                if(Bukkit.getServer().getOnlinePlayers().size() < 2){
+                    HubManager.getGetCurrent().run();
+                }
+            }
+        }, 5);
     }
 }

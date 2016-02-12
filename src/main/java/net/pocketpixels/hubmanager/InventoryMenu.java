@@ -56,6 +56,9 @@ public class InventoryMenu implements Listener{
     public void sendMenu(Player player){
         Inventory inventory = Bukkit.createInventory(player, size*9, name);
         for(MenuOption m : Options){
+            if(m.autoUpdate){
+                m.updateLore();
+            }
             inventory.setItem((m.Y*9) + m.X, m.getIcon());
         }
         player.openInventory(inventory);
@@ -102,12 +105,22 @@ public class InventoryMenu implements Listener{
         private int X;
         @Getter
         private int Y;
+        @Getter
+        private boolean autoUpdate = false;
+        
+        private String[] subtext;
         
         public MenuOption(String name, Material icon, String[] subtext, String cmd, int x, int y){
             X = x;
             Y = y;
             this.OptionName = name;
             this.Command = cmd.split(" ");
+            this.subtext = subtext;
+            for(String s : subtext){
+                if(s.contains("{{") && s.contains("}}")){
+                    this.autoUpdate = true;
+                }
+            }
             this.Icon = InventoryMenu.setItemNameAndLore(new ItemStack(icon), name, subtext);
         }
         
@@ -124,6 +137,19 @@ public class InventoryMenu implements Listener{
                 out.writeUTF(Command[1]);
                 p.sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
             }
+        }
+        
+        public void updateLore(){
+            List<String> lore = Icon.getItemMeta().getLore();
+            for(int i = 0; i < subtext.length; i++){
+                if(subtext[i].contains("{{current}}")){
+                    String line = subtext[i];
+                    lore.set(i, line.replaceAll("{{current}}", String.valueOf(HubManager.getServerCount().get(Command[1]))));
+                }
+            }
+            ItemMeta im = Icon.getItemMeta();
+            im.setLore(lore);
+            Icon.setItemMeta(im);
         }
     }
 }

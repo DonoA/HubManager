@@ -20,6 +20,7 @@ package net.pocketpixels.hubmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.IOException;
@@ -54,13 +55,36 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
     @Getter
     private static HashMap<String, InventoryMenu> Menus = new HashMap<>();
     
+    @Getter
+    private static HashMap<String, Integer> ServerCount = new HashMap<>();
+    
+    @Getter
+    private static Runnable getCurrent = new Runnable(){
+            @Override
+            public void run(){
+                if(Bukkit.getOnlinePlayers().isEmpty()){
+                    for(String server : ServerCount.keySet()){
+                        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                        out.writeUTF("PlayerCount");
+                        out.writeUTF(server);
+                        ((Player)Bukkit.getOnlinePlayers().toArray()[0]).sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
+                    }
+                }
+            }
+        };
+    
     @Override
     public void onEnable() {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new CompassHandler(), this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 5);
         instance = this;
         loadMenus();
+        for(String s : getConfig().getStringList("servers")){
+            ServerCount.put(s, -1);
+        }
     }
     
     @Override
@@ -70,6 +94,9 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
       }
       ByteArrayDataInput in = ByteStreams.newDataInput(message);
       String subchannel = in.readUTF();
+      if(subchannel.equals("PlayerCount")){
+          ServerCount.put(in.readUTF(), in.readInt());
+      }
     }
     
     private void loadMenus(){
