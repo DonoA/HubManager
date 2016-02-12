@@ -18,6 +18,44 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.7</source>
+				<target>1.7</target>
+			</configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <minimizeJar>true</minimizeJar>
+                                    <relocations>
+                                        <relocation>
+                                            <pattern>com.fasterxml</pattern>
+                                            <shadedPattern>libs.com.fasterxml</shadedPattern>
+                                        </relocation>
+                                    </relocations>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.projectlombok:lombok</exclude>
+                                            <exclude>org.bukkit:bukkit</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+		</plugin>
+        </plugins>
     </build>
     
     <repositories>
@@ -35,32 +73,32 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <version>1.8-R0.1-SNAPSHOT</version>
             <type>javadoc</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <version>1.8-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <!--Bukkit API-->
-        <dependency>
+        <!--dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <version>1.7.9-R0.2</version>
             <type>javadoc</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <version>1.7.9-R0.2</version>
             <type>jar</type>
             <scope>provided</scope>
-        </dependency>
+        </dependency-->
         <!--BungeeCord API -->
         <dependency>
             <groupId>net.md-5</groupId>
@@ -82,6 +120,13 @@
            <artifactId>lombok</artifactId>
            <version>1.12.2</version>
            <type>jar</type>
+        </dependency>
+        <!--JSON Parsing-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.0-rc1</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

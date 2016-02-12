@@ -18,24 +18,23 @@
  */
 package net.pocketpixels.hubmanager;
 
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
  *
  * @author donoa_000
  */
-public class LoginHandler implements Listener{
- 
+public class CompassHandler implements Listener{
+    
     @EventHandler
-    public void onPostLogin(PostLoginEvent e) {
-        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            player.sendMessage(new TextComponent(e.getPlayer().getName() + " has joined the network."));
+    public void onPlayerInteract(PlayerInteractEvent e){
+        if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString()) && 
+                (e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_AIR))){
+            HubManager.getMenus().get(e.getItem().getType().toString()).sendMenu(e.getPlayer());
         }
     }
-    
 }
