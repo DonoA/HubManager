@@ -62,7 +62,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
     private static Runnable getCurrent = new Runnable(){
             @Override
             public void run(){
-                if(Bukkit.getOnlinePlayers().isEmpty()){
+                if(!Bukkit.getOnlinePlayers().isEmpty()){
                     for(String server : ServerCount.keySet()){
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("PlayerCount");

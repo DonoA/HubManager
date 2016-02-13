@@ -144,7 +144,7 @@ public class InventoryMenu implements Listener{
             for(int i = 0; i < subtext.length; i++){
                 if(subtext[i].contains("{{current}}")){
                     String line = subtext[i];
-                    lore.set(i, line.replaceAll("{{current}}", String.valueOf(HubManager.getServerCount().get(Command[1]))));
+                    lore.set(i, line.replaceAll("\\{\\{current\\}\\}", String.valueOf(HubManager.getServerCount().get(Command[1]))));
                 }
             }
             ItemMeta im = Icon.getItemMeta();

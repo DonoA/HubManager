@@ -1,0 +1,22 @@
+{
+	"title":"TEST",
+	"items":[
+				{
+					"name": "TESToption",
+					"icon": "APPLE",
+					"lore": ["TEST LORE", "LOTS of LORE"],
+					"command": "message TEST",
+					"x": 0,
+					"y": 2
+				},
+				{
+					"name": "TESToption2",
+					"icon": "APPLE",
+					"lore": ["TEST LORE2", "LOTS of LORE2", "currently connected: {{current}}"],
+					"command": "connect Server1",
+					"x": 6,
+					"y": 2
+				}
+			],
+	"size": 4
+}
