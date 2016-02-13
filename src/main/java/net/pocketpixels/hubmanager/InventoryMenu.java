@@ -20,6 +20,7 @@ package net.pocketpixels.hubmanager;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -43,8 +44,14 @@ import org.bukkit.material.Banner;
  */
 public class InventoryMenu implements Listener{
     private String name;
+    @Getter
     private MenuOption[] Options;
+    @Getter
     private int size;
+    @Getter
+    private Inventory inven;
+    
+    public static ArrayList<InventoryMenu> openMenus = new ArrayList<>();
    
     public InventoryMenu(String name, MenuOption[] options, int size){
         this.size = size;
@@ -54,14 +61,15 @@ public class InventoryMenu implements Listener{
     }
    
     public void sendMenu(Player player){
-        Inventory inventory = Bukkit.createInventory(player, size*9, name);
+        inven = Bukkit.createInventory(player, size*9, name);
         for(MenuOption m : Options){
             if(m.autoUpdate){
                 m.updateLore();
             }
-            inventory.setItem((m.Y*9) + m.X, m.getIcon());
+            inven.setItem((m.Y*9) + m.X, m.getIcon());
         }
-        player.openInventory(inventory);
+        openMenus.add(this);
+        player.openInventory(inven);
     }
    
     @EventHandler(priority=EventPriority.MONITOR)
@@ -73,6 +81,8 @@ public class InventoryMenu implements Listener{
                 if((m.Y*9) + m.X == slot){
                     final Player p = (Player)e.getWhoClicked();
                     m.exec(p);
+                    openMenus.remove(this);
+                    inven = null;
                     Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
                         @Override
                         public void run(){
@@ -92,6 +102,15 @@ public class InventoryMenu implements Listener{
         return item;
     }
     
+    public static void updateItems(){
+        for(InventoryMenu im : openMenus){
+            for(MenuOption mo : im.getOptions()){
+                mo.updateLore();
+                im.getInven().setItem((mo.getY()*9)+mo.getX(), mo.getIcon());
+            }
+        }
+    }
+    
     public static class MenuOption{
         @Getter
         private String OptionName;
@@ -107,7 +126,7 @@ public class InventoryMenu implements Listener{
         private int Y;
         @Getter
         private boolean autoUpdate = false;
-        
+        @Getter
         private String[] subtext;
         
         public MenuOption(String name, Material icon, String[] subtext, String cmd, int x, int y){

@@ -70,6 +70,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
                         ((Player)Bukkit.getOnlinePlayers().toArray()[0]).sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
                     }
                 }
+                InventoryMenu.updateItems();
             }
         };
     
@@ -79,7 +80,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
         pm.registerEvents(new CompassHandler(), this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 5);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 2);
         instance = this;
         loadMenus();
         for(String s : getConfig().getStringList("servers")){
