@@ -39,6 +39,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -112,7 +113,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
                     InventoryMenu.MenuOption[] Items = new InventoryMenu.MenuOption[menu.items.length];
                     int j = 0;
                     for(Menu.Item i : menu.items){
-                        Items[j] = new InventoryMenu.MenuOption(i.name, Material.valueOf(i.icon), i.lore, i.command, i.X, i.Y);
+                        Items[j] = new InventoryMenu.MenuOption(i.name, new ItemStack(i.icon, i.data), i.lore, i.command, i.X, i.Y);
                         j++;
                     }
                     Menus.put(f.getName().replace(".menu", ""), new InventoryMenu(menu.title, Items, menu.size));
@@ -138,7 +139,10 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
             private String name;
             
             @Setter
-            private String icon;
+            private int icon;
+            
+            @Setter
+            private int data;
             
             @Setter
             private String[] lore;

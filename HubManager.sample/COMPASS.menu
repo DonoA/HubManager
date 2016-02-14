@@ -1,19 +1,129 @@
 {
-	"title":"TEST",
+	"title":"PocketPixel Servers (Click to Open)",
 	"items":[
 				{
-					"name": "TESToption",
-					"icon": "APPLE",
-					"lore": ["TEST LORE", "LOTS of LORE"],
-					"command": "message TEST",
+					"name": "Vanilla Servers 1.8",
+					"icon": 2,
+					"itemdat": 0,
+					"lore": ["", "Vanilla Minecraft Servers", "for 1.8 clients"],
+					"command": "noclose",
+					"x": 0,
+					"y": 1
+				},
+				{
+					"name": "Creative",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Creative",
+					"x": 2,
+					"y": 1
+				},
+				{
+					"name": "Skywars",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Skywars",
+					"x": 3,
+					"y": 1
+				},
+				{
+					"name": "Factions",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Factions",
+					"x": 4,
+					"y": 1
+				},
+				{
+					"name": "Prisons 1",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Prison1",
+					"x": 5,
+					"y": 1
+				},
+				{
+					"name": "Prisons 2",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Prison2",
+					"x": 6,
+					"y": 1
+				},
+				{
+					"name": "Skyblock",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Skyblock",
+					"x": 7,
+					"y": 1
+				},
+				{
+					"name": "Pixelmon 1.7.10 Servers",
+					"icon": 2,
+					"itemdat": 0,
+					"lore": ["", "Forge Modded servers", "for 1.7.10 clients", "using Forge 3.5.1"],
+					"command": "noclose",
 					"x": 0,
 					"y": 2
 				},
 				{
-					"name": "TESToption2",
-					"icon": "APPLE",
-					"lore": ["TEST LORE2", "LOTS of LORE2", "currently connected: {{current}}"],
-					"command": "connect Server1",
+					"name": "Yellow 1",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Yellow1",
+					"x": 2,
+					"y": 2
+				},
+				{
+					"name": "Yellow 2",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Yellow2",
+					"x": 3,
+					"y": 2
+				},
+				{
+					"name": "Red",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Red",
+					"x": 4,
+					"y": 2
+				},
+				{
+					"name": "Iceage",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Iceage",
+					"x": 5,
+					"y": 2
+				},
+				{
+					"name": "Ancient",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": ["", "Click to connect", "There are currently {{current}} users connected"],
+					"command": "connect Ancient",
+					"x": 6,
+					"y": 2
+				},
+				{
+					"name": "More Soon!",
+					"icon": 0,
+					"itemdat": 0,
+					"lore": [],
+					"command": "noclose",
 					"x": 6,
 					"y": 2
 				}

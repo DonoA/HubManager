@@ -103,10 +103,14 @@ public class InventoryMenu implements Listener{
     }
     
     public static void updateItems(){
-        for(InventoryMenu im : openMenus){
-            for(MenuOption mo : im.getOptions()){
-                mo.updateLore();
-                im.getInven().setItem((mo.getY()*9)+mo.getX(), mo.getIcon());
+        for(InventoryMenu im : (ArrayList<InventoryMenu>) openMenus.clone()){
+            if(im.getInven() != null){
+                for(MenuOption mo : im.getOptions()){
+                    mo.updateLore();
+                    im.getInven().setItem((mo.getY()*9)+mo.getX(), mo.getIcon());
+                }
+            }else{
+                openMenus.remove(im);
             }
         }
     }
@@ -129,7 +133,7 @@ public class InventoryMenu implements Listener{
         @Getter
         private String[] subtext;
         
-        public MenuOption(String name, Material icon, String[] subtext, String cmd, int x, int y){
+        public MenuOption(String name, ItemStack icon, String[] subtext, String cmd, int x, int y){
             X = x;
             Y = y;
             this.OptionName = name;
@@ -140,7 +144,7 @@ public class InventoryMenu implements Listener{
                     this.autoUpdate = true;
                 }
             }
-            this.Icon = InventoryMenu.setItemNameAndLore(new ItemStack(icon), name, subtext);
+            this.Icon = InventoryMenu.setItemNameAndLore(icon, name, subtext);
         }
         
         public void exec(Player p){
