@@ -31,22 +31,27 @@ import org.bukkit.event.player.PlayerJoinEvent;
  *
  * @author donoa_000
  */
-public class CompassHandler implements Listener{
+public class MenuHandler implements Listener{
     
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
         if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString()) && 
-                (e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_AIR))){
+                (e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_BLOCK))){
             HubManager.getMenus().get(e.getItem().getType().toString()).sendMenu(e.getPlayer());
         }
     }
     
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
+        final Player p = e.getPlayer();
         Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
             @Override
             public void run(){
                 if(Bukkit.getServer().getOnlinePlayers().size() < 2){
+                    p.getInventory().clear();
+                    for(InventoryMenu im : HubManager.getMenus().values()){
+                        p.getInventory().setItem(im.getSlot(), im.getIcon());
+                    }
                     HubManager.getGetCurrent().run();
                 }
             }

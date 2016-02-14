@@ -35,6 +35,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.pocketpixels.hubmanager.InventoryMenu.MenuOption;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -77,8 +78,9 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
     
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new CompassHandler(), this);
+        pm.registerEvents(new MenuHandler(), this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 2);
@@ -97,7 +99,9 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
       ByteArrayDataInput in = ByteStreams.newDataInput(message);
       String subchannel = in.readUTF();
       if(subchannel.equals("PlayerCount")){
-          ServerCount.put(in.readUTF(), in.readInt());
+          try {
+            ServerCount.put(in.readUTF(), in.readInt());
+          }catch(Exception ex){}
       }
     }
     
@@ -113,10 +117,12 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
                     InventoryMenu.MenuOption[] Items = new InventoryMenu.MenuOption[menu.items.length];
                     int j = 0;
                     for(Menu.Item i : menu.items){
-                        Items[j] = new InventoryMenu.MenuOption(i.name, new ItemStack(i.icon, i.data), i.lore, i.command, i.X, i.Y);
+                        Items[j] = new InventoryMenu.MenuOption(ChatColor.GOLD + i.name, new ItemStack(i.icon, 1, (short) 0, i.itemdat), i.lore, i.command, i.X, i.Y);
                         j++;
                     }
-                    Menus.put(f.getName().replace(".menu", ""), new InventoryMenu(menu.title, Items, menu.size));
+                    ItemStack menuIcon = new ItemStack(Material.valueOf(f.getName().replace(".menu", "")));
+                    InventoryMenu.setItemNameAndLore(menuIcon, menu.itemName, new String[] {});
+                    Menus.put(f.getName().replace(".menu", ""), new InventoryMenu(menu.title, Items, menu.size, menuIcon, menu.slot));
                 } catch (IOException ex) {
                     Logger.getLogger(HubManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -132,7 +138,13 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
         private int size;
         
         @Setter
+        private int slot;
+        
+        @Setter
         private Item[] items;
+
+        @Setter
+        private String itemName;
                 
         private static class Item{
             @Setter
@@ -142,7 +154,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
             private int icon;
             
             @Setter
-            private int data;
+            private byte itemdat;
             
             @Setter
             private String[] lore;

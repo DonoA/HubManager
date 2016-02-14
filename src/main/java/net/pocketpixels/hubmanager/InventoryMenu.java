@@ -26,6 +26,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,11 +50,17 @@ public class InventoryMenu implements Listener{
     @Getter
     private int size;
     @Getter
+    private int slot;
+    @Getter
     private Inventory inven;
+    @Getter
+    private ItemStack icon;
     
     public static ArrayList<InventoryMenu> openMenus = new ArrayList<>();
    
-    public InventoryMenu(String name, MenuOption[] options, int size){
+    public InventoryMenu(String name, MenuOption[] options, int size, ItemStack icon, int slot){
+        this.slot = slot;
+        this.icon = icon;
         this.size = size;
         this.name = name;
         this.Options = options;
@@ -61,15 +68,19 @@ public class InventoryMenu implements Listener{
     }
    
     public void sendMenu(Player player){
-        inven = Bukkit.createInventory(player, size*9, name);
-        for(MenuOption m : Options){
-            if(m.autoUpdate){
-                m.updateLore();
+        if(Options.length != 1){
+            inven = Bukkit.createInventory(player, size*9, name);
+            for(MenuOption m : Options){
+                if(m.autoUpdate){
+                    m.updateLore();
+                }
+                inven.setItem((m.Y*9) + m.X, m.getIcon());
             }
-            inven.setItem((m.Y*9) + m.X, m.getIcon());
+            openMenus.add(this);
+            player.openInventory(inven);
+        }else{
+            Options[0].exec(player);
         }
-        openMenus.add(this);
-        player.openInventory(inven);
     }
    
     @EventHandler(priority=EventPriority.MONITOR)
@@ -80,24 +91,25 @@ public class InventoryMenu implements Listener{
             for(MenuOption m : Options){
                 if((m.Y*9) + m.X == slot){
                     final Player p = (Player)e.getWhoClicked();
-                    m.exec(p);
-                    openMenus.remove(this);
-                    inven = null;
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
-                        @Override
-                        public void run(){
-                            p.closeInventory();
-                        }
-                    }, 1);
+                    if(m.exec(p)){
+                        openMenus.remove(this);
+                        inven = null;
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
+                            @Override
+                            public void run(){
+                                p.closeInventory();
+                            }
+                        }, 1);
+                    }
                 }
             }
         }
     }
    
-    private static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore){
+    public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore){
         ItemMeta im = item.getItemMeta();
-            im.setDisplayName(name);
-            im.setLore(Arrays.asList(lore));
+        im.setDisplayName(name);
+        im.setLore(Arrays.asList(lore));
         item.setItemMeta(im);
         return item;
     }
@@ -147,19 +159,24 @@ public class InventoryMenu implements Listener{
             this.Icon = InventoryMenu.setItemNameAndLore(icon, name, subtext);
         }
         
-        public void exec(Player p){
+        public boolean exec(Player p){
             if(Command[0].equalsIgnoreCase("message")){
                 String msg = "";
                 for(int i = 1; i < Command.length; i++){
                     msg += Command[i] + " ";
                 }
                 p.sendMessage(msg);
+                return true;
             }else if(Command[0].equalsIgnoreCase("connect")){
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
                 out.writeUTF("Connect");
                 out.writeUTF(Command[1]);
                 p.sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
+                return true;
+            }else if(Command[0].equalsIgnoreCase("noclose")){
+                return false;
             }
+            return false;
         }
         
         public void updateLore(){
@@ -167,7 +184,7 @@ public class InventoryMenu implements Listener{
             for(int i = 0; i < subtext.length; i++){
                 if(subtext[i].contains("{{current}}")){
                     String line = subtext[i];
-                    lore.set(i, line.replaceAll("\\{\\{current\\}\\}", String.valueOf(HubManager.getServerCount().get(Command[1]))));
+                    lore.set(i, line.replaceAll("\\{\\{current\\}\\}", ChatColor.GREEN + String.valueOf(HubManager.getServerCount().get(Command[1])) + ChatColor.ITALIC + ChatColor.DARK_PURPLE));
                 }
             }
             ItemMeta im = Icon.getItemMeta();

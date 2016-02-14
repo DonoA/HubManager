@@ -1,0 +1,17 @@
+{
+	"title":"PocketPixels TeamSpeak",
+	"itemName": "PocketPixels TeamSpeak (Click to Open)",
+	"slot": 8,
+	"items":[
+				{
+					"name": "",
+					"icon": 1,
+					"itemdat": 0,
+					"lore": [],
+					"command": "message ts3server://ts.pocketpixels.net",
+					"x": 0,
+					"y": 0
+				}
+			],
+	"size": 0
+}
