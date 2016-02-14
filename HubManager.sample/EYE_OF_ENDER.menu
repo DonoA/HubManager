@@ -1,6 +1,6 @@
 {
 	"title":"PocketPixels Website",
-	"itemName": "PocketPixels Website (Click to Open)",
+	"itemName": "§6§lWebsite §7(Click to Open)",
 	"slot": 6,
 	"items":[
 				{
@@ -8,7 +8,7 @@
 					"icon": 1,
 					"itemdat": 0,
 					"lore": [],
-					"command": "message http://www.pocketpixels.net/",
+					"command": "message §6§lWEBSITE §bhttp://www.pocketpixels.net/",
 					"x": 0,
 					"y": 0
 				}

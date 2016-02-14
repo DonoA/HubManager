@@ -37,6 +37,9 @@ import net.pocketpixels.hubmanager.InventoryMenu.MenuOption;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -49,7 +52,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  *
  * @author donoa_000
  */
-public class HubManager extends JavaPlugin implements PluginMessageListener {
+public class HubManager extends JavaPlugin implements PluginMessageListener, CommandExecutor {
     
     @Getter
     private static JavaPlugin instance;
@@ -85,6 +88,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 2);
         instance = this;
+        getCommand("ReloadMenus").setExecutor(this);
         loadMenus();
         for(String s : getConfig().getStringList("servers")){
             ServerCount.put(s, -1);
@@ -103,6 +107,15 @@ public class HubManager extends JavaPlugin implements PluginMessageListener {
             ServerCount.put(in.readUTF(), in.readInt());
           }catch(Exception ex){}
       }
+    }
+    
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args){
+        if(cmd.getName().equalsIgnoreCase("reloadmenus") && sender.isOp()){
+            Menus.clear();
+            loadMenus();
+        }
+        return true;
     }
     
     private void loadMenus(){

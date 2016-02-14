@@ -2,3 +2,8 @@ name: ${project.artifactId}
 main: net.pocketpixels.hubmanager.HubManager
 version: ${project.version}
 author: Dallen
+commands:
+  ReloadMenus:
+    description: reload the menus
+    usage: |
+            /reload menus

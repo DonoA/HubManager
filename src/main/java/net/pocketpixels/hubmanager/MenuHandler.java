@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
@@ -35,10 +36,15 @@ public class MenuHandler implements Listener{
     
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
-        if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString()) && 
-                (e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_BLOCK))){
+        if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString())){
             HubManager.getMenus().get(e.getItem().getType().toString()).sendMenu(e.getPlayer());
+            e.setCancelled(true);
         }
+    }
+    
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent e){
+        e.setCancelled(true);
     }
     
     @EventHandler
@@ -47,11 +53,11 @@ public class MenuHandler implements Listener{
         Bukkit.getScheduler().scheduleSyncDelayedTask(HubManager.getInstance(), new Runnable(){
             @Override
             public void run(){
+                p.getInventory().clear();
+                for(InventoryMenu im : HubManager.getMenus().values()){
+                    p.getInventory().setItem(im.getSlot(), im.getIcon());
+                }
                 if(Bukkit.getServer().getOnlinePlayers().size() < 2){
-                    p.getInventory().clear();
-                    for(InventoryMenu im : HubManager.getMenus().values()){
-                        p.getInventory().setItem(im.getSlot(), im.getIcon());
-                    }
                     HubManager.getGetCurrent().run();
                 }
             }
