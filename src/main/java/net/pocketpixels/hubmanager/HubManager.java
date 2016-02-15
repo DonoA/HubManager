@@ -36,6 +36,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,6 +59,15 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
     private static HashMap<String, Integer> ServerCount = new HashMap<>();
     
     @Getter
+    private final static String prefix = ChatColor.YELLOW + "[" + ChatColor.BLUE + "HubManager" + ChatColor.YELLOW + "]" + ChatColor.RESET;
+    
+    @Getter
+    private static String FileSep = System.getProperty("file.separator");
+    
+    @Getter
+    private static File pluginDirectory;
+    
+    @Getter
     private static Runnable getCurrent = new Runnable(){
             @Override
             public void run(){
@@ -76,7 +87,10 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
     public void onEnable() {
         this.saveDefaultConfig();
         PluginManager pm = Bukkit.getPluginManager();
+        StaffLogin sl = new StaffLogin();
         pm.registerEvents(new MenuHandler(), this);
+        pm.registerEvents(sl, this);
+        this.pluginDirectory = getDataFolder();
         getServer().getMessenger().registerOutgoingPluginChannel(this, "RedisBungee");
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "RedisBungee", this);
