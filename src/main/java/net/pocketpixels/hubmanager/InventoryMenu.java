@@ -168,10 +168,14 @@ public class InventoryMenu implements Listener{
                 p.sendMessage(msg);
                 return true;
             }else if(Command[0].equalsIgnoreCase("connect")){
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("Connect");
-                out.writeUTF(Command[1]);
-                p.sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
+                if(!p.hasPermission("staffsecure.staff")){
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF("Connect");
+                    out.writeUTF(Command[1]);
+                    p.sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
+                }else{
+                    p.sendMessage(ChatColor.RED + " You need to login! /login <password>");
+                }
                 return true;
             }else if(Command[0].equalsIgnoreCase("noclose")){
                 return false;
