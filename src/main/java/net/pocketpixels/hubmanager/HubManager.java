@@ -72,7 +72,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("PlayerCount");
                         out.writeUTF(server);
-                        ((Player)Bukkit.getOnlinePlayers().toArray()[0]).sendPluginMessage(HubManager.getInstance(), "BungeeCord", out.toByteArray());
+                        ((Player)Bukkit.getOnlinePlayers().toArray()[0]).sendPluginMessage(HubManager.getInstance(), "RedisBungee", out.toByteArray());
                     }
                 }
                 InventoryMenu.updateItems();
@@ -84,7 +84,9 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
         this.saveDefaultConfig();
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new MenuHandler(), this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "RedisBungee");
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "RedisBungee", this);
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 2);
         instance = this;
@@ -97,7 +99,7 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
     
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
-      if (!channel.equals("BungeeCord")) {
+      if (!channel.equals("RedisBungee")) {
         return;
       }
       ByteArrayDataInput in = ByteStreams.newDataInput(message);
