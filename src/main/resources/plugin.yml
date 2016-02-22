@@ -7,3 +7,12 @@ commands:
     description: reload the menus
     usage: |
             /reload menus
+  login:
+    description: allows staff to login
+    usage: |
+            /login <password>
+  password:
+    description: allows of password changes
+    usage: |
+            /password set <new password>
+            /password reset <player uuid>

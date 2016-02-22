@@ -20,9 +20,7 @@ package net.pocketpixels.hubmanager;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,18 +32,23 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.EventExecutor;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 /**
  *
  * @author donoa_000
  */
 public class StaffLogin implements CommandExecutor, Listener{
+    
+    private static StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
     
     @Getter
     private static final Permission staffPermission = new Permission("hubmanager.staff", PermissionDefault.FALSE);
@@ -64,9 +67,9 @@ public class StaffLogin implements CommandExecutor, Listener{
         if(cmd.getName().equalsIgnoreCase("login") && args.length > 0){
             if(sender instanceof Player){
                 Player p = (Player) sender;
-                if(p.hasPermission(staffPermission) || p.hasPermission(adminPermission)){
+                if(isStaff(p)){
                     if(playerData.get(p.getName()).checkPassword(args[0])){
-                        playerData.get(p.getName()).getKnownIPs().add(p.getAddress().toString().replace("/", ""));
+//                        playerData.get(p.getName()).getKnownIPs().add(p.getAddress().toString().replace("/", ""));
                         DBmanager.saveObj(playerData.get(p.getName()), new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
                         "PlayerData" + HubManager.getFileSep()), playerData.get(p.getName()).getUUID().toString());
                         p.addAttachment(HubManager.getInstance(), loggedInPermission.getName(), true);
@@ -81,19 +84,21 @@ public class StaffLogin implements CommandExecutor, Listener{
             if(args[0].equalsIgnoreCase("set") && sender instanceof Player){
                 Player p = (Player) sender;
                 if(p.hasPermission(loggedInPermission)){
-                    playerData.get(p.getName()).setPassword(PlayerDat.encryptPassword(args[1]));
-                    DBmanager.saveObj(playerData.get(p.getName()), new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
-                        "PlayerData" + HubManager.getFileSep()), playerData.get(p.getName()).getUUID().toString());
+                    PlayerDat pd = playerData.get(p.getName());
+                    pd.setPassword(PlayerDat.encryptPassword(args[1]));
+                    DBmanager.saveObj(pd, new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
+                        "PlayerData" + HubManager.getFileSep()), pd.getUUID().toString());
+                    playerData.put(p.getName(), pd);
                 }
             }else if(args[0].equalsIgnoreCase("reset") && args.length > 2){
                 if(sender instanceof ConsoleCommandSender){
                     Object save = DBmanager.loadObj(PlayerDat.class, HubManager.getPluginDirectory() + HubManager.getFileSep() + 
-                    "PlayerData" + HubManager.getFileSep() + args[1] + ".json");
+                    "PlayerData" + HubManager.getFileSep() + args[1]);
                         if(save.equals(false)){
                             sender.sendMessage(HubManager.getPrefix() + ChatColor.RED + "No such user has played!");
                         }else{
                             PlayerDat pd = (PlayerDat) save;
-                            pd.setPassword(PlayerDat.encryptPassword(args[2]));
+                            pd.setPassword(PlayerDat.encryptPassword("password"));
                             DBmanager.saveObj(pd, new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
                             "PlayerData" + HubManager.getFileSep()), pd.getUUID().toString());
                         }
@@ -107,9 +112,9 @@ public class StaffLogin implements CommandExecutor, Listener{
     
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
-        if(e.getPlayer().hasPermission(staffPermission) || e.getPlayer().hasPermission(adminPermission)){
+        if(isStaff(e.getPlayer())){
             Object save = DBmanager.loadObj(PlayerDat.class, HubManager.getPluginDirectory() + HubManager.getFileSep() + 
-                    "PlayerData" + HubManager.getFileSep() + e.getPlayer().getUniqueId() + ".json");
+                    "PlayerData" + HubManager.getFileSep() + e.getPlayer().getUniqueId());
             if(save.equals(false)){
                 PlayerDat pd = new PlayerDat();
                 pd.setUUID(e.getPlayer().getUniqueId());
@@ -123,7 +128,49 @@ public class StaffLogin implements CommandExecutor, Listener{
         }
     }
     
-    //STILL NEED TO ADD ALL LISTENERS FOR RESTRICTIONS
+    
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent e){
+        if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            if(e.getFrom().distance(e.getTo()) > 0.01){
+                e.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e){
+        if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e){
+        if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            if(!e.getMessage().startsWith("/login")){
+                e.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e){
+        if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e){
+        if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.setCancelled(true);
+        }
+    }
+    
+    private boolean isStaff(Player p){
+        return p.hasPermission(staffPermission) || p.hasPermission(adminPermission);
+    }
     
     private static class PlayerDat{
         @Getter @Setter
@@ -138,11 +185,11 @@ public class StaffLogin implements CommandExecutor, Listener{
         public PlayerDat(){}
         
         public boolean checkPassword(String password){
-            return Password.equals(encryptPassword(password));
+            return passwordEncryptor.checkPassword(password, Password);
         }
         
         public static String encryptPassword(String password){
-            return password;
+            return passwordEncryptor.encryptPassword(password);
         }
     }
 }

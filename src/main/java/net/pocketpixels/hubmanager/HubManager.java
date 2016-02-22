@@ -36,8 +36,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -98,6 +96,8 @@ public class HubManager extends JavaPlugin implements PluginMessageListener, Com
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, getCurrent, 10, 20 * 2);
         instance = this;
         getCommand("ReloadMenus").setExecutor(this);
+        getCommand("login").setExecutor(sl);
+        getCommand("password").setExecutor(sl);
         loadMenus();
         for(String s : getConfig().getStringList("servers")){
             ServerCount.put(s, -1);
