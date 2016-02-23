@@ -31,6 +31,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -40,6 +41,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
 /**
@@ -48,7 +51,7 @@ import org.jasypt.util.password.StrongPasswordEncryptor;
  */
 public class StaffLogin implements CommandExecutor, Listener{
     
-    private static StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+    private static final StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
     
     @Getter
     private static final Permission staffPermission = new Permission("hubmanager.staff", PermissionDefault.FALSE);
@@ -69,12 +72,12 @@ public class StaffLogin implements CommandExecutor, Listener{
                 Player p = (Player) sender;
                 if(isStaff(p)){
                     if(playerData.get(p.getName()).checkPassword(args[0])){
-//                        playerData.get(p.getName()).getKnownIPs().add(p.getAddress().toString().replace("/", ""));
-                        DBmanager.saveObj(playerData.get(p.getName()), new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
-                        "PlayerData" + HubManager.getFileSep()), playerData.get(p.getName()).getUUID().toString());
+                        //add any needed perms here
+                        p.removePotionEffect(PotionEffectType.BLINDNESS);
+                        p.sendMessage(HubManager.getPrefix() + ChatColor.GREEN + " Logged in!");
                         p.addAttachment(HubManager.getInstance(), loggedInPermission.getName(), true);
                     }else{
-                        sender.sendMessage(HubManager.getPrefix() + ChatColor.RED + "Incorrect password!");
+                        sender.sendMessage(HubManager.getPrefix() + ChatColor.RED + " Incorrect password!");
                     }
                 }
             }else{
@@ -86,8 +89,9 @@ public class StaffLogin implements CommandExecutor, Listener{
                 if(p.hasPermission(loggedInPermission)){
                     PlayerDat pd = playerData.get(p.getName());
                     pd.setPassword(PlayerDat.encryptPassword(args[1]));
+                    p.sendMessage(HubManager.getPrefix() + ChatColor.GREEN + " Password changed!");
                     DBmanager.saveObj(pd, new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + 
-                        "PlayerData" + HubManager.getFileSep()), pd.getUUID().toString());
+                        "PlayerData"), pd.getUUID().toString());
                     playerData.put(p.getName(), pd);
                 }
             }else if(args[0].equalsIgnoreCase("reset") && args.length > 2){
@@ -115,6 +119,7 @@ public class StaffLogin implements CommandExecutor, Listener{
         if(isStaff(e.getPlayer())){
             Object save = DBmanager.loadObj(PlayerDat.class, HubManager.getPluginDirectory() + HubManager.getFileSep() + 
                     "PlayerData" + HubManager.getFileSep() + e.getPlayer().getUniqueId());
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2000000, 100));
             if(save.equals(false)){
                 PlayerDat pd = new PlayerDat();
                 pd.setUUID(e.getPlayer().getUniqueId());
@@ -129,7 +134,7 @@ public class StaffLogin implements CommandExecutor, Listener{
     }
     
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerMove(PlayerMoveEvent e){
         if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
             if(e.getFrom().distance(e.getTo()) > 0.01){
@@ -138,32 +143,36 @@ public class StaffLogin implements CommandExecutor, Listener{
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent e){
         if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.getPlayer().sendMessage(HubManager.getPrefix() + ChatColor.RED + " You must first /login!");
             e.setCancelled(true);
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e){
         if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
             if(!e.getMessage().startsWith("/login")){
+                e.getPlayer().sendMessage(HubManager.getPrefix() + ChatColor.RED + " You must first /login!");
                 e.setCancelled(true);
             }
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteract(PlayerInteractEvent e){
         if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.getPlayer().sendMessage(HubManager.getPrefix() + ChatColor.RED + " You must first /login!");
             e.setCancelled(true);
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e){
         if(!e.getPlayer().hasPermission(loggedInPermission) && isStaff(e.getPlayer())){
+            e.getPlayer().sendMessage(HubManager.getPrefix() + ChatColor.RED + " You must first /login!");
             e.setCancelled(true);
         }
     }
@@ -172,10 +181,7 @@ public class StaffLogin implements CommandExecutor, Listener{
         return p.hasPermission(staffPermission) || p.hasPermission(adminPermission);
     }
     
-    private static class PlayerDat{
-        @Getter @Setter
-        private ArrayList<String> knownIPs;
-        
+    private static class PlayerDat{        
         @Getter @Setter
         private UUID UUID;
         

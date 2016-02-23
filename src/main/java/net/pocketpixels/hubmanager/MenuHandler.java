@@ -19,11 +19,9 @@
 package net.pocketpixels.hubmanager;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -36,7 +34,8 @@ public class MenuHandler implements Listener{
     
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
-        if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString())){
+        if(e.hasItem() && HubManager.getMenus().containsKey(e.getItem().getType().toString()) && 
+                e.getPlayer().hasPermission(StaffLogin.getLoggedInPermission())){
             HubManager.getMenus().get(e.getItem().getType().toString()).sendMenu(e.getPlayer());
             e.setCancelled(true);
         }

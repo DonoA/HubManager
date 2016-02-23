@@ -91,7 +91,7 @@ public class DBmanager {
      * @return returns the loaded object as an Object
      */
     public static Object loadObj(Class type, String path){
-        File loc = new File(HubManager.getPluginDirectory() + HubManager.getFileSep() + path);
+        File loc = new File(path);
         if(!loc.exists()){
             loc.mkdirs();
             return false;
